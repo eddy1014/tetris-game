@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -60,7 +61,8 @@
       <div class="next-box">下一塊：<br><canvas id="next" width="80" height="80"></canvas></div>
       <div class="controls">
         <button onclick="toggleTheme()">切換主題</button>
-        <button onclick="toggleMusic()">背景音樂</button>
+        <button onclick="toggleMusic()">背景音樂</button><br>
+        <small>※ 有些瀏覽器需互動後才能播放音樂</small>
       </div>
       <div class="instructions">
         <strong>操作說明：</strong><br>
@@ -85,6 +87,8 @@
 
     const scoreElement = document.getElementById('score');
     const bgm = document.getElementById('bgm');
+
+    let musicInitialized = false;
 
     function arenaSweep() {
       outer: for (let y = arena.length - 1; y > 0; --y) {
@@ -219,11 +223,20 @@
     }
 
     function toggleMusic() {
-      if (bgm.paused) bgm.play();
-      else bgm.pause();
+      if (bgm.paused) {
+        bgm.play().catch(err => {
+          console.log('音樂播放被瀏覽器阻止：', err);
+        });
+      } else {
+        bgm.pause();
+      }
     }
 
     document.addEventListener('keydown', event => {
+      if (!musicInitialized) {
+        bgm.play().catch(() => {});
+        musicInitialized = true;
+      }
       if (event.key === 'ArrowLeft') playerMove(-1);
       else if (event.key === 'ArrowRight') playerMove(1);
       else if (event.key === 'ArrowDown') playerDrop();
